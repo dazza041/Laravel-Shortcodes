@@ -17,6 +17,14 @@ class ShortcodeCompiler {
     protected $registered = array();
 
     /**
+     * Attached View Data
+     *
+     * @var array
+     */
+    protected $data = [];
+    
+    protected $_viewData;
+    /**
      * Enable
      * @return void
      */
@@ -117,14 +125,14 @@ class ShortcodeCompiler {
     {
         // Compile the shortcode
         $compiled = $this->compileShortcode($matches);
-        $name = $compiled->getName();
 
         // Render the shortcode through the callback
-        return call_user_func_array($this->getCallback($name), array(
+        return call_user_func_array($this->getCallback(), array(
             $compiled,
             $compiled->getContent(),
             $this,
-            $name
+            $compiled->getName(),
+            $this->_viewData
         ));
     }
 
@@ -181,10 +189,10 @@ class ShortcodeCompiler {
      * @param  string  $name
      * @return callable|array
      */
-    public function getCallback($name)
+    public function getCallback()
     {
         // Get the callback from the shortcodes array
-        $callback = $this->registered[$name];
+        $callback = $this->registered[$this->getName()];
 
         // if is a string
         if(is_string($callback))
@@ -304,5 +312,13 @@ class ShortcodeCompiler {
     protected function getShortcodeNames()
     {
         return join('|', array_map('preg_quote', array_keys($this->registered)));
+    }
+
+    
+    // get view data
+    public function viewData( $viewData )
+    {
+        $this->_viewData = $viewData;
+        return $this;
     }
 }
